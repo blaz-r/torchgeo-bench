@@ -126,6 +126,36 @@ Both accept `--config` and `--dry-run`. See
 Optional `profile` and `intrinsic_dim` passes within an image run retain their
 separate per-model CSVs unless `output.file` explicitly combines them.
 
+## Handcrafted classification baseline
+
+The handcrafted model adds deterministic spectral and spatial measurements to the ImageStats baseline. The `handcrafted_level1`, `handcrafted_level2`, and `handcrafted_level3` presets select cumulative feature sets; `handcrafted` defaults to level 2. Feature width depends on the input bands and available spectral indices.
+
+Download the classification datasets and run the level sweep from this checkout:
+
+```bash
+python -m torchgeo_bench download geobench_v1
+python -m torchgeo_bench download geobench_v2 --datasets benv2,treesatai,so2sat,forestnet
+python -m torchgeo_bench download eurosat
+python -m torchgeo_bench download resisc45
+python -m torchgeo_bench download aid
+python experiments/run_handcrafted.py
+```
+
+Future sweeps include ImageStats as level 0 and every classification protocol in the current dataset catalog, including AID, multilabel datasets and EuroSAT's spatial split. They use all bands with identity input normalization, otherwise retaining the normal 224px resize, KNN-5, validation-selected C, train-plus-validation final refit, and 200 bootstrap draws.
+
+Results go to separate `results/models/handcrafted_level*.csv` files and `imagestats_handcrafted_control.csv`. Feature lists and completion status are saved under `outputs/handcrafted/`. Resume skips matching completed rows; a missing linear or KNN result is still reported as a failure. Summaries, including `--report-only`, select only rows matching the current configuration and requested devices, so historical hashes are not mixed into new comparisons.
+
+The checked-in CSVs are unchanged historical measurements on 13 protocols from the original handcrafted study, not measurements of the current runner; they contain no AID results. Their recorded numbers and configuration hashes are preserved. Current runs use the current configuration hash and do not treat these historical rows as completed work. Use `--output-dir results/handcrafted-current` to keep a new sweep separate.
+
+Use `--levels 1 2`, `--datasets eurosat resisc45`, or `--dry-run` for a smaller run. The extractor also works through the normal CLI:
+
+```bash
+python -m torchgeo_bench run --model handcrafted_level2 \
+  --dataset eurosat --bands all --normalization none
+```
+
+All four presets default to all bands and identity normalization. Custom YAML can set `model: {name: handcrafted, kwargs: {level: 3}}`; preprocessing belongs under `input`, not constructor kwargs.
+
 ## CoordBench — location encoders
 
 `torchgeo-bench coord` runs the **coordinate-only** track: point
