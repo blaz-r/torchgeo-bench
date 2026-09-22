@@ -232,13 +232,7 @@ than being silently omitted.
 
 ``aid`` contains 10,000 RGB scenes at 600x600 across 30 classes (Xia et al., 2017). With no official split, ``scripts/generate_aid_splits.py`` generates a deterministic, stratified 60/20/20 split. Downloads use the pinned, checksum-verified ``isaaccorley/aid`` rehost. Upstream specifies no license or image geolocation. Band subsets and ordering are applied before user transforms.
 
-``ucmerced`` contains 2,100 RGB aerial 256x256 images across 21 land use classes.
-The wrapper uses torchgeo's published split files: 1,260 training, 420 validation,
-and 420 test images (60/20/20 overall).
-Normalization statistics are measured on the training split only.
-The original imagery has 1 ft (0.3048 m) resolution; the shared ``aerial`` sensor
-tag uses an approximate 1 m GSD for resolution-aware models. Individual images
-have no georeferencing, which is recorded in the coverage map.
+``ucmerced`` contains 2,100 RGB aerial images across 21 land use classes, resized to 256x256 by torchgeo. Its published split files contain 1,260 training, 420 validation, and 420 test images. Normalization statistics use the training split only. The source resolution is 1 ft (0.3048 m); the shared ``aerial`` sensor tag uses an approximate 1 m GSD for resolution-aware models. Images have no georeferencing, which is recorded in the coverage map.
 
 .. code-block:: console
 

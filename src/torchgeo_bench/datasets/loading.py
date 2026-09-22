@@ -48,9 +48,9 @@ _REGISTRY_SPEC: dict[str, tuple[str, str, Literal["classification", "segmentatio
     "eurosat": ("eurosat", "EuroSAT", "classification"),
     "eurosat-spatial": ("eurosat", "EuroSATSpatial", "classification"),
     "resisc45": ("resisc45", "RESISC45", "classification"),
+    "ucmerced": ("ucmerced", "UCMerced", "classification"),
     # other classification
     "aid": ("aid", "AID", "classification"),
-    "ucmerced": ("ucmerced", "UCMerced", "classification"),
 }
 
 

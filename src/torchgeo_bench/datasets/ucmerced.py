@@ -10,21 +10,13 @@ from typing import ClassVar
 from torch.utils.data import Dataset
 from torchgeo.datasets import UCMerced as TGUCMerced
 from torchgeo.datasets.utils import Sample
-from torchvision.transforms import Compose
 
+from ._transforms import select_bands
 from .base import BandSpec, BenchDataset
 
 
 class UCMerced(BenchDataset):
-    """Aerial land use classification, 21 classes, via torchgeo.
-
-    2,100 RGB images from USGS urban area imagery at 1 ft (0.3048 m) resolution.
-    Uses torchgeo's published 60/20/20 split: 1,260 train, 420 validation, 420 test.
-    Torchgeo resizes the few non-square images to 256x256 before caller transforms.
-
-    Wavelengths are nominal visible-light centres, not measured sensor responses.
-    The shared ``aerial`` sensor tag uses an approximate 1 m GSD for model routing.
-    """
+    """UC Merced's 2,100 RGB scenes and published 60/20/20 split."""
 
     name = "ucmerced"
     task = "classification"
@@ -62,18 +54,5 @@ class UCMerced(BenchDataset):
             raise ValueError(f"Unknown split {split!r}. Expected train, val, or test.")
         specs = self.select_band_specs(bands)
         indices = [self.bands.index(spec) for spec in specs]
-        if indices != list(range(len(self.bands))):
-            select = _SelectBands(indices)
-            transform = select if transform is None else Compose([select, transform])
+        transform = select_bands(indices, len(self.bands), transform)
         return TGUCMerced(root=str(self.data_root()), split=split, transforms=transform)
-
-
-class _SelectBands:
-    """Select RGB channels with a transform picklable by spawned data workers."""
-
-    def __init__(self, indices: list[int]) -> None:
-        self.indices = indices
-
-    def __call__(self, sample: Sample) -> Sample:
-        sample["image"] = sample["image"][self.indices]
-        return sample
